@@ -46,7 +46,7 @@ button,
 }
 
 .menu-title.active,
-.dropdown :slotted(button:hover) {
+.dropdown :slotted(button:not(:disabled):hover) {
   background: #000;
   color: #fff;
 }
@@ -70,10 +70,22 @@ button,
 }
 
 .dropdown :slotted(button) {
-  display: block;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
   width: 100%;
   padding: 2px 14px 2px 26px;
   text-align: left;
+}
+
+.dropdown :slotted(button:disabled) {
+  color: #999;
+  cursor: default;
+}
+
+.dropdown :slotted(.separator) {
+  margin: 2px 0;
+  border-top: 1px dotted #000;
 }
 
 .dropdown :slotted(.checked)::before {

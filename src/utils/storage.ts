@@ -1,0 +1,17 @@
+// localStorage can be unavailable (private mode, blocked site data), so never let it throw
+
+export function readStorage(key: string): string | null {
+  try {
+    return localStorage.getItem(key)
+  } catch {
+    return null
+  }
+}
+
+export function writeStorage(key: string, value: string) {
+  try {
+    localStorage.setItem(key, value)
+  } catch {
+    // ignore – the app still works, it just won't remember
+  }
+}

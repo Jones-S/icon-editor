@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { usePixelGrid } from '@/composables/usePixelGrid'
 
-const { size, pixels, get, set } = usePixelGrid()
+const { size, pixels, get, set, checkpoint } = usePixelGrid()
 
 const gridEl = ref<HTMLElement | null>(null)
 let painting = false
@@ -42,6 +42,7 @@ function paintLine(x0: number, y0: number, x1: number, y1: number) {
 function onPointerDown(e: PointerEvent) {
   if (e.button !== 0) return
   const { x, y } = cellAt(e)
+  checkpoint() // the whole stroke is one undo step
   paintValue = !get(x, y)
   painting = true
   last = { x, y }

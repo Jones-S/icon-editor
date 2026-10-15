@@ -1,26 +1,55 @@
 <script setup lang="ts">
+import { onBeforeUnmount, onMounted } from 'vue'
 import { usePixelGrid } from '@/composables/usePixelGrid'
+import { useSettings } from '@/composables/useSettings'
+import EditMenu from '@/components/EditMenu.vue'
 import ExportMenu from '@/components/ExportMenu.vue'
 import IconEditor from '@/components/IconEditor.vue'
 import IconPreview from '@/components/IconPreview.vue'
 import MacWindow from '@/components/MacWindow.vue'
+import PixelsPointsContent from '@/components/PixelsPointsContent.vue'
 import SizeMenu from '@/components/SizeMenu.vue'
+import ViewMenu from '@/components/ViewMenu.vue'
 
-const { clear } = usePixelGrid()
+const { undo, redo } = usePixelGrid()
+const { advanced } = useSettings()
+
+// ⌘Z / Ctrl+Z undo, ⇧⌘Z / Ctrl+Shift+Z / Ctrl+Y redo
+function onKeydown(e: KeyboardEvent) {
+  if (!(e.metaKey || e.ctrlKey) || e.altKey) return
+  const key = e.key.toLowerCase()
+  if (key === 'z') {
+    e.preventDefault()
+    if (e.shiftKey) redo()
+    else undo()
+  } else if (key === 'y' && e.ctrlKey) {
+    e.preventDefault()
+    redo()
+  }
+}
+
+onMounted(() => window.addEventListener('keydown', onKeydown))
+onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
 </script>
 
 <template>
   <nav class="menu-bar">
     <span class="apple"></span>
+    <EditMenu />
     <SizeMenu />
+    <ViewMenu />
     <ExportMenu />
-    <button class="menu-item" @click="clear">Clear</button>
   </nav>
   <main class="desktop">
     <MacWindow title="Icon Editor">
       <IconEditor />
     </MacWindow>
-    <IconPreview title="icon" />
+    <div class="side">
+      <IconPreview title="icon" />
+      <MacWindow v-if="advanced" title="Pixels & Points" class="info-window">
+        <PixelsPointsContent />
+      </MacWindow>
+    </div>
   </main>
 </template>
 
@@ -68,17 +97,14 @@ body {
   padding: 0 10px;
 }
 
-.menu-item {
-  font: inherit;
-  border: 0;
-  background: none;
-  padding: 2px 10px;
-  cursor: pointer;
-}
-
-.menu-item:active {
-  background: #000;
-  color: #fff;
+.side {
+  display: flex;
+  flex: 1 1 300px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+  min-width: 0;
+  max-width: 480px;
 }
 
 .desktop {
