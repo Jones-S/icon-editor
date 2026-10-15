@@ -38,6 +38,7 @@ watch(pixels, draw, { deep: true })
   justify-content: center;
   width: 160px;
   height: 120px;
+  background: #e4e4e4;
 }
 
 canvas {
