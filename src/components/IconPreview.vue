@@ -15,12 +15,13 @@ const ratio = useDevicePixelRatio()
 const round = (n: number) => +n.toFixed(2)
 const ratioLabel = computed(() => round(ratio.value))
 const isWholeRatio = computed(() => Number.isInteger(ratioLabel.value))
-const isHighDensity = computed(() => ratio.value >= 1.5)
 
-// Size of the drawing when shown pixel for pixel on your screen, and how many pixels
-// a 1× screen has for that same size
-const actualPt = computed(() => round(size.value / ratio.value))
-const standardPx = computed(() => Math.max(1, Math.round(size.value / ratio.value)))
+// Pixel ratios your screen can show exactly: every ratio that divides yours evenly.
+// On 2×: 1× and 2×. On 3×: 1× and 3×. When zoomed or scaled, only 1× (approximately).
+const densities = computed(() => {
+  const r = isWholeRatio.value ? ratioLabel.value : 1
+  return Array.from({ length: r }, (_, i) => i + 1).filter((d) => r % d === 0)
+})
 
 // window.screen is in pt; reading ratio makes this update on zoom or screen change
 const screenSize = computed(() => {
@@ -46,46 +47,21 @@ const screenSize = computed(() => {
       </p>
 
       <div class="tiles">
-        <figure>
+        <figure v-for="d in densities" :key="d">
           <div class="stage" :style="{ height: `${size + 16}px` }">
-            <PreviewCanvas :display-size="size" />
+            <PreviewCanvas :display-size="size / d" />
           </div>
           <figcaption>
-            <strong>{{ size }} px at {{ size }} pt</strong>
-            how a 1× screen shows it
+            <strong>{{ size }} px at {{ round(size / d) }} pt</strong>
+            on a {{ d }}× screen
+            <em v-if="d === ratioLabel">your screen</em>
           </figcaption>
         </figure>
-
-        <template v-if="isHighDensity">
-          <figure>
-            <div class="stage" :style="{ height: `${size + 16}px` }">
-              <PreviewCanvas :display-size="actualPt" />
-            </div>
-            <figcaption>
-              <strong>{{ size }} px at {{ actualPt }} pt</strong>
-              your screen, every pixel
-            </figcaption>
-          </figure>
-          <figure>
-            <div class="stage" :style="{ height: `${size + 16}px` }">
-              <PreviewCanvas :display-size="actualPt" :resolution="standardPx" />
-            </div>
-            <figcaption>
-              <strong>{{ standardPx }} px at {{ actualPt }} pt</strong>
-              same size on a 1× screen
-            </figcaption>
-          </figure>
-        </template>
       </div>
 
-      <p v-if="isHighDensity" class="note">
-        Your screen fits {{ size }} px into {{ actualPt }} pt, so fine details look good here. A 1×
-        screen has only {{ standardPx }} px for that size, and they get lost. Judge your icon by the
-        first view.
-      </p>
-      <p v-else class="note">
-        This is exactly what 1× screens show. On a 2× (Retina) screen, the @2x export keeps it just
-        as sharp.
+      <p class="note">
+        Every view shows all {{ size }} px, one screen pixel each. Pixel art stays sharp on every
+        screen – only its size changes.
       </p>
     </div>
   </MacWindow>
@@ -144,8 +120,17 @@ figure {
 figcaption {
   display: flex;
   flex-direction: column;
+  align-items: center;
   margin-top: 4px;
   text-align: center;
   line-height: 1.3;
+}
+
+figcaption em {
+  margin-top: 2px;
+  padding: 0 4px;
+  font-style: normal;
+  background: #000;
+  color: #fff;
 }
 </style>

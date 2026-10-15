@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import { usePixelGrid } from '@/composables/usePixelGrid'
 import { useSettings } from '@/composables/useSettings'
+import BlurPanel from '@/components/BlurPanel.vue'
 import EditMenu from '@/components/EditMenu.vue'
 import ExportMenu from '@/components/ExportMenu.vue'
 import IconEditor from '@/components/IconEditor.vue'
@@ -45,7 +46,8 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKeydown))
       <IconEditor />
     </MacWindow>
     <div class="side">
-      <IconPreview title="icon" />
+      <IconPreview />
+      <BlurPanel v-if="advanced" />
       <MacWindow v-if="advanced" title="Pixels & Points" class="info-window">
         <PixelsPointsContent />
       </MacWindow>

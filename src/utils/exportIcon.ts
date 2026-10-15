@@ -53,9 +53,14 @@ export function exportSvg(pixels: boolean[], size: number) {
   download(new Blob([toSvgString(pixels, size)], { type: 'image/svg+xml' }), `icon-${size}.svg`)
 }
 
-// The icon as a target screen would show it: scaled to `targetPixels` screen pixels.
-// Whole-number scales repeat pixels; anything else gets smoothed, like systems and browsers do.
-export function renderForScreen(pixels: boolean[], size: number, targetPixels: number) {
+// The icon resized to `targetPixels`, the way a screen would show it. By default only
+// uneven factors are smoothed; pass smooth to also smooth whole-number stretching.
+export function renderForScreen(
+  pixels: boolean[],
+  size: number,
+  targetPixels: number,
+  smooth = targetPixels % size !== 0,
+) {
   const source = document.createElement('canvas')
   source.width = size
   source.height = size
@@ -65,7 +70,7 @@ export function renderForScreen(pixels: boolean[], size: number, targetPixels: n
   target.width = targetPixels
   target.height = targetPixels
   const ctx = target.getContext('2d')!
-  ctx.imageSmoothingEnabled = targetPixels % size !== 0
+  ctx.imageSmoothingEnabled = smooth
   ctx.imageSmoothingQuality = 'high'
   ctx.drawImage(source, 0, 0, targetPixels, targetPixels)
   return target
