@@ -1,32 +1,33 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
-import { SIZE, usePixelGrid } from '@/composables/usePixelGrid'
+import { usePixelGrid } from '@/composables/usePixelGrid'
+import { drawPixels } from '@/utils/exportIcon'
 import MacWindow from './MacWindow.vue'
 
 defineProps<{ title?: string }>()
 
-const { pixels } = usePixelGrid()
+const { pixels, size } = usePixelGrid()
 const canvas = ref<HTMLCanvasElement | null>(null)
 
 function draw() {
   const ctx = canvas.value?.getContext('2d')
-  if (!ctx) return
-  ctx.fillStyle = '#fff'
-  ctx.fillRect(0, 0, SIZE, SIZE)
-  ctx.fillStyle = '#000'
-  pixels.value.forEach((on, i) => {
-    if (on) ctx.fillRect(i % SIZE, Math.floor(i / SIZE), 1, 1)
-  })
+  if (ctx) drawPixels(ctx, pixels.value, size.value)
 }
 
 onMounted(draw)
-watch(pixels, draw, { deep: true })
+// flush: 'post' so the canvas is resized before redrawing
+watch([pixels, size], draw, { deep: true, flush: 'post' })
 </script>
 
 <template>
   <MacWindow :title="title ?? 'Preview'">
     <div class="preview">
-      <canvas ref="canvas" :width="SIZE" :height="SIZE" />
+      <canvas
+        ref="canvas"
+        :width="size"
+        :height="size"
+        :style="{ width: `${size}px`, height: `${size}px` }"
+      />
     </div>
   </MacWindow>
 </template>
@@ -42,8 +43,6 @@ watch(pixels, draw, { deep: true })
 }
 
 canvas {
-  width: 32px;
-  height: 32px;
   image-rendering: pixelated;
 }
 </style>

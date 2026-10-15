@@ -4,6 +4,7 @@ import ExportMenu from '@/components/ExportMenu.vue'
 import IconEditor from '@/components/IconEditor.vue'
 import IconPreview from '@/components/IconPreview.vue'
 import MacWindow from '@/components/MacWindow.vue'
+import SizeMenu from '@/components/SizeMenu.vue'
 
 const { clear } = usePixelGrid()
 </script>
@@ -11,6 +12,7 @@ const { clear } = usePixelGrid()
 <template>
   <nav class="menu-bar">
     <span class="apple"></span>
+    <SizeMenu />
     <ExportMenu />
     <button class="menu-item" @click="clear">Clear</button>
   </nav>

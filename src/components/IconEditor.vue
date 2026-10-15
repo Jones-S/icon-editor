@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { SIZE, usePixelGrid } from '@/composables/usePixelGrid'
+import { usePixelGrid } from '@/composables/usePixelGrid'
 
-const { pixels, get, set } = usePixelGrid()
+const { size, pixels, get, set } = usePixelGrid()
 
 const gridEl = ref<HTMLElement | null>(null)
 let painting = false
@@ -12,8 +12,8 @@ let last: { x: number; y: number } | null = null
 function cellAt(e: PointerEvent) {
   const rect = gridEl.value!.getBoundingClientRect()
   return {
-    x: Math.floor(((e.clientX - rect.left) / rect.width) * SIZE),
-    y: Math.floor(((e.clientY - rect.top) / rect.height) * SIZE),
+    x: Math.floor(((e.clientX - rect.left) / rect.width) * size.value),
+    y: Math.floor(((e.clientY - rect.top) / rect.height) * size.value),
   }
 }
 
@@ -67,6 +67,7 @@ function stop() {
   <div
     ref="gridEl"
     class="grid"
+    :style="{ gridTemplateColumns: `repeat(${size}, 1fr)` }"
     @pointerdown="onPointerDown"
     @pointermove="onPointerMove"
     @pointerup="stop"
@@ -80,7 +81,6 @@ function stop() {
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: repeat(32, 1fr);
   width: min(70vh, calc(100vw - 32px));
   aspect-ratio: 1;
   border-top: 1px solid #b8b8b8;
